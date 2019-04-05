@@ -1,4 +1,4 @@
-package project.wgtech.sampleapp.fragments;
+package project.wgtech.sampleapp.view.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

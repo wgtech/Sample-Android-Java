@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frag_container"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment
-        android:id="@+id/frag_layout"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="project.wgtech.sampleapp.view.fragments.TestFragment"/>
-
+        app:lottie_fileName="empty_box.json"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

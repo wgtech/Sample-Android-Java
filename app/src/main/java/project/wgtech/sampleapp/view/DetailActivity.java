@@ -1,4 +1,4 @@
-package project.wgtech.sampleapp;
+package project.wgtech.sampleapp.view;
 
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -7,10 +7,11 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import butterknife.ButterKnife;
-import project.wgtech.sampleapp.fragments.TestFragment;
+import project.wgtech.sampleapp.R;
+import project.wgtech.sampleapp.view.fragments.TestFragment;
 
-public class LayoutActivity extends FragmentActivity {
-    private static final String TAG = LayoutActivity.class.getSimpleName();
+public class DetailActivity extends FragmentActivity {
+    private static final String TAG = DetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

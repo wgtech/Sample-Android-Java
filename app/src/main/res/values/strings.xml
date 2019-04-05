@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">NewTestApp</string>
+    <string name="app_name">WGSample</string>
+
+    <!-- CardView -->
+    <string name="delete">삭제</string>
+
 </resources>

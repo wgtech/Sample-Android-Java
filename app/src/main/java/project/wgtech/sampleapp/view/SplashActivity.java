@@ -1,4 +1,4 @@
-package project.wgtech.sampleapp;
+package project.wgtech.sampleapp.view;
 
 import android.content.Intent;
 import android.os.Bundle;
