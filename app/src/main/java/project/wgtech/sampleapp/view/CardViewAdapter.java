@@ -59,15 +59,16 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         // (2)
         repo = repos.get(position);
         Glide.with(context)
-            .load(repo.hdurl)
+            .load(repo.url)
             .centerCrop()
             .into(holder.ivImage);
         holder.tvTitle.setText(repo.title);
         holder.tvDate.setText(repo.date);
 
         holder.btnDelete.setOnClickListener(view -> {
-            //repos.remove(position);
-            //notifyItemChanged(position);
+            repos.remove(position);
+            notifyItemRemoved(position);
+            notifyDataSetChanged();
             Toast.makeText(context, "삭제 완료", Toast.LENGTH_SHORT).show();
         });
     }

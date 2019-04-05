@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 추가
         ArrayList<String> dates = new ArrayList<>(1);
+        dates.add("2019-03-27");
+        dates.add("2019-03-28");
+        dates.add("2019-03-29");
+        dates.add("2019-03-30");
         dates.add("2019-03-31");
         dates.add("2019-04-01");
         dates.add("2019-04-02");
