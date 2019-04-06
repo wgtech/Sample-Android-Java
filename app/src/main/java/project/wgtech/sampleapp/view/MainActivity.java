@@ -1,9 +1,11 @@
 package project.wgtech.sampleapp.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,10 +18,12 @@ import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.model.NASAImageRepo;
 import project.wgtech.sampleapp.viewmodel.NASACardViewModel;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -85,12 +89,11 @@ public class MainActivity extends AppCompatActivity {
         dates.add("2019-04-04");
 
         model.getImages(dates).observe(this, nasaImageRepos -> {
-            CardViewAdapter adapter = new CardViewAdapter(getBaseContext(), nasaImageRepos);
+            CardViewAdapter adapter = new CardViewAdapter(MainActivity.this, nasaImageRepos);
             rv.setAdapter(adapter);
             rv.setHasFixedSize(true);
             rv.setLayoutManager(new LinearLayoutManager(this));
         });
-
 
         //startLottieAnimation();
 

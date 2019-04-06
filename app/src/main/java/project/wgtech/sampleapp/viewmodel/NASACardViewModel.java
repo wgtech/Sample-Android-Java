@@ -93,8 +93,8 @@ public class NASACardViewModel extends ViewModel {
         Retrofit client = new Retrofit.Builder()
                 .baseUrl("https://api.nasa.gov")
                 .client(new OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(30, TimeUnit.SECONDS)
+                        .connectTimeout(1, TimeUnit.MINUTES)
+                        .readTimeout(1, TimeUnit.MINUTES)
                         .build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -113,10 +113,10 @@ public class NASACardViewModel extends ViewModel {
                             NASAImageRepo repo = response.body();
                             repos.add(repo);
                             images.setValue(repos);
-                            Log.d(TAG, "onResponse: " + repo.title);
-                            Log.d(TAG, "onResponse: " + repo.hdurl);
-                            Log.d(TAG, "loadImages: " + repos.size());
-                            Log.d(TAG, "loadImages: " + images.getValue().size());
+                            //Log.d(TAG, "onResponse: " + repo.title);
+                            //Log.d(TAG, "onResponse: " + repo.hdurl);
+                            //Log.d(TAG, "loadImages: " + repos.size());
+                            //Log.d(TAG, "loadImages: " + images.getValue().size());
                         }
                     }
                 }

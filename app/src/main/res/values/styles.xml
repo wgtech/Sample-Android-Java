@@ -14,10 +14,19 @@
 
     </style>
 
-    <!-- For Splash Only -->
-    <style name="SplashStyle" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/ic_launcher_background</item>
+    <!-- FullScreen Only -->
+    <style name="FullScreenTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- DetailActivity -->
+    <style name="DetailStyle" parent="FullScreenTheme">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <!-- SplashActivity (<- DetailStyle) -->
+    <style name="SplashStyle" parent="FullScreenTheme">
+        <item name="android:windowBackground">@drawable/ic_launcher_background</item>
     </style>
 
     <!-- Toolbar Font -->
@@ -25,5 +34,8 @@
         <item name="android:typeface">@font/font</item>
         <item name="android:textColor">@color/black</item>
     </style>
+
+
+
 
 </resources>

@@ -10,12 +10,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="370dp">
+        android:layout_height="340dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_item"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:transitionName="imageUp"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="3dp"
             app:cardUseCompatPadding="true"
