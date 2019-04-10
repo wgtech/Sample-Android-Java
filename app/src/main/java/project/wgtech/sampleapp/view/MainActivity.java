@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.databinding.DataBindingUtil;
@@ -15,18 +16,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import project.wgtech.sampleapp.R;
-import project.wgtech.sampleapp.model.NASAImageRepo;
 import project.wgtech.sampleapp.viewmodel.NASACardViewModel;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.widget.Toast;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -67,14 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         ViewModelProvider.AndroidViewModelFactory f = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         NASACardViewModel model = f.create(NASACardViewModel.class);
-        // 원본
-//        model.getImage().observe(this, nasaImageRepo -> {
-//            CardViewAdapter adapter = new CardViewAdapter(getBaseContext(), nasaImageRepo);
-//            rv.setAdapter(adapter);
-//            rv.setHasFixedSize(true);
-//            rv.setLayoutManager(new LinearLayoutManager(this));
-//        });
-
 
         // 추가
         ArrayList<String> dates = new ArrayList<>(1);
@@ -89,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
         dates.add("2019-04-04");
 
         model.getImages(dates).observe(this, nasaImageRepos -> {
-            CardViewAdapter adapter = new CardViewAdapter(MainActivity.this, nasaImageRepos);
+            CardViewAdapter adapter = new CardViewAdapter(getBaseContext(), nasaImageRepos);
             rv.setAdapter(adapter);
             rv.setHasFixedSize(true);
-            rv.setLayoutManager(new LinearLayoutManager(this));
+            rv.setLayoutManager(new LinearLayoutManager(MainActivity.this, RecyclerView.VERTICAL, false));
         });
 
         //startLottieAnimation();

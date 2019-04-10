@@ -113,10 +113,6 @@ public class NASACardViewModel extends ViewModel {
                             NASAImageRepo repo = response.body();
                             repos.add(repo);
                             images.setValue(repos);
-                            //Log.d(TAG, "onResponse: " + repo.title);
-                            //Log.d(TAG, "onResponse: " + repo.hdurl);
-                            //Log.d(TAG, "loadImages: " + repos.size());
-                            //Log.d(TAG, "loadImages: " + images.getValue().size());
                         }
                     }
                 }
@@ -125,7 +121,6 @@ public class NASACardViewModel extends ViewModel {
                 public void onFailure(Call<NASAImageRepo> call, Throwable t) {
                     Log.d(TAG, "NASA 이미지 불러오기 실패: \n" + t.getMessage());
                     Log.d(TAG, "NASA의 요청 메시지: " + call.request());
-
                 }
             });
         }

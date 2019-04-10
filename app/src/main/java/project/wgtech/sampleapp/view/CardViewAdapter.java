@@ -3,7 +3,6 @@ package project.wgtech.sampleapp.view;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +16,10 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
@@ -36,21 +33,12 @@ import project.wgtech.sampleapp.model.NASAImageRepo;
 public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardViewHolder> {
     private final static String TAG = CardViewAdapter.class.getSimpleName();
 
-    private AppCompatActivity activity;
     private Context context;
     private NASAImageRepo repo;
     private ArrayList<NASAImageRepo> repos;
 
-    // (1)
-    public CardViewAdapter(Context context, NASAImageRepo repo) {
+    public CardViewAdapter(Context context, ArrayList<NASAImageRepo> repos) {
         this.context = context;
-        this.repo = repo;
-    }
-
-    // (2)
-    public CardViewAdapter(AppCompatActivity activity, ArrayList<NASAImageRepo> repos) {
-        this.activity = activity;
-        this.context = activity.getBaseContext();
         this.repos = repos;
     }
 
@@ -62,39 +50,28 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        // (1)
-//        Glide.with(context)
-//                .load(repo.hdurl)
-//                .centerCrop()
-//                .into(holder.ivImage);
-//        holder.tvTitle.setText(repo.title);
-//        holder.tvDate.setText(repo.date);
 
-
-        // (2)
         repo = repos.get(position);
-        Intent i = new Intent(context, DetailActivity.class);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        Glide.with(activity)
+        Intent i = new Intent(context, DetailActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("position", position);
+        i.putExtra("url", repo.url);
+
+        Glide.with(context)
                 .asBitmap()
                 .load(repo.url)
-                .thumbnail(0.8f)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .listener(new RequestListener<Bitmap>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                        Log.d(TAG, "onLoadFailed: ");
+                        Log.d(TAG, "onLoadFailed: Glide Exception! " + e.getMessage());
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-
                         if (resource != null){
-                            i.putExtra("hdurl", (repo.hdurl == null || repo.hdurl.equals(""))? repo.url : repo.hdurl);
 
                             Palette.from(resource).generate(palette -> {
                                 if (palette == null) return;
@@ -111,16 +88,14 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
                                     holder.tvTitle.setTextColor(titleTextColor);
                                     holder.tvDate.setTextColor(titleTextColor);
                                     holder.btnDelete.setTextColor(bodyTextColor);
-
-                                    i.putExtra("backgroundColor", backgroundColor);
-                                    i.putExtra("titleTextColor", titleTextColor);
-                                    i.putExtra("bodyTextColor", titleTextColor);
                                 }
                             });
                         }
                         return false;
                     }
                 })
+                .thumbnail(0.01f)
+                .centerCrop()
                 .into(holder.ivImage);
 
 
@@ -135,8 +110,8 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         });
 
         holder.cardView.setOnClickListener(view -> {
-
             context.startActivity(i);
+
 
             /**
              * TODO
@@ -152,10 +127,6 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
 
     @Override
     public int getItemCount() {
-        // (1)
-        //return 1;
-
-        // (2)
         return repos.size();
     }
 
@@ -164,6 +135,8 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         //return super.getItemId(position);
         return position;
     }
+
+
 
     public class CardViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;

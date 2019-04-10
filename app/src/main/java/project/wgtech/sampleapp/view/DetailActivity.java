@@ -2,15 +2,22 @@ package project.wgtech.sampleapp.view;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.palette.graphics.Palette;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityDetailBinding;
 
@@ -30,26 +37,45 @@ public class DetailActivity extends AppCompatActivity {
         binding.setActivity(this);
 
         Intent i = getIntent();
-        String url = i.getStringExtra("hdurl");
-        int backgroundColor = i.getIntExtra("backgroundColor", R.color.gray_transparent30);
-        int titleTextColor = i.getIntExtra("titleTextColor", R.color.gray_transparent30);
-        int bodyTextColor = i.getIntExtra("bodyTextColor", R.color.gray_transparent30);
-
-
-        Log.d(TAG, "onCreate: " + url);
-        Log.d(TAG, "onCreate: " + backgroundColor);
-        Log.d(TAG, "onCreate: " + titleTextColor);
-        Log.d(TAG, "onCreate: " + bodyTextColor);
+        Log.d(TAG, "onCreate: " + i.getIntExtra("position", 99999) + ", " + i.getStringExtra("url"));
 
         Glide.with(getBaseContext())
                 .asBitmap()
-                .load(url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .load(i.getStringExtra("url"))
+                .listener(new RequestListener<Bitmap>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                        if (resource != null){
+                            Palette.from(resource).generate(palette -> {
+                                if (palette == null) return;
+
+                                Palette.Swatch vibrantSwatch = palette.getDarkVibrantSwatch();
+
+                                if (vibrantSwatch != null) {
+                                    int backgroundColor = vibrantSwatch.getRgb();
+                                    int titleTextColor = vibrantSwatch.getTitleTextColor();
+                                    int bodyTextColor = vibrantSwatch.getBodyTextColor();
+
+                                    binding.clDetailButtons.setBackgroundColor(backgroundColor);
+                                    binding.btnDetailCloud.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
+                                    binding.btnDetailShare.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
+                                    binding.btnDetailSound.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
+                                    binding.clDetailAreaBottom.setBackgroundColor(backgroundColor);
+                                }
+                            });
+                        }
+                        return false;
+                    }
+                })
                 .into(binding.ivDetail);
-        binding.clDetailButtons.setBackgroundColor(backgroundColor);
-        binding.btnDetailCloud.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
-        binding.btnDetailShare.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
-        binding.btnDetailSound.setBackgroundTintList(ColorStateList.valueOf(titleTextColor));
-        binding.clDetailAreaBottom.setBackgroundColor(titleTextColor);
+
+
     }
 
     @Override
