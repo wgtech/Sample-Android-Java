@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         dates.add("2019-04-04");
 
         model.getImages(dates).observe(this, nasaImageRepos -> {
-            CardViewAdapter adapter = new CardViewAdapter(getBaseContext(), nasaImageRepos);
+            CardViewAdapter adapter = new CardViewAdapter(MainActivity.this, nasaImageRepos);
             rv.setAdapter(adapter);
             rv.setHasFixedSize(true);
             rv.setLayoutManager(new LinearLayoutManager(MainActivity.this, RecyclerView.VERTICAL, false));

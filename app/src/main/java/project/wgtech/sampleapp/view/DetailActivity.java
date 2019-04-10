@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -32,12 +34,19 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().setAllowEnterTransitionOverlap(true);
+        getWindow().setAllowReturnTransitionOverlap(true);
+        getWindow().setSharedElementEnterTransition(new AutoTransition());
+        getWindow().setSharedElementReturnTransition(new AutoTransition());
+        getWindow().setEnterTransition(new Explode());
+        getWindow().setExitTransition(new Explode());
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
         binding.setActivity(this);
 
         Intent i = getIntent();
         Log.d(TAG, "onCreate: " + i.getIntExtra("position", 99999) + ", " + i.getStringExtra("url"));
+        String transitionTag = i.getStringExtra("transition");
 
         Glide.with(getBaseContext())
                 .asBitmap()
@@ -75,15 +84,14 @@ public class DetailActivity extends AppCompatActivity {
                 })
                 .into(binding.ivDetail);
 
-
+        binding.ivDetail.setTransitionName(transitionTag);
     }
 
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: 눌렀다.");
         super.onBackPressed();
-        finish();
-        //finishAfterTransition();
+        finishAfterTransition();
     }
 }
 

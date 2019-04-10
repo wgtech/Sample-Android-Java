@@ -20,11 +20,14 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 import project.wgtech.sampleapp.R;
@@ -34,11 +37,13 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
     private final static String TAG = CardViewAdapter.class.getSimpleName();
 
     private Context context;
+    private AppCompatActivity activity;
     private NASAImageRepo repo;
     private ArrayList<NASAImageRepo> repos;
 
-    public CardViewAdapter(Context context, ArrayList<NASAImageRepo> repos) {
-        this.context = context;
+    public CardViewAdapter(AppCompatActivity activity, ArrayList<NASAImageRepo> repos) {
+        this.activity = activity;
+        this.context = this.activity.getBaseContext();
         this.repos = repos;
     }
 
@@ -56,11 +61,20 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         Intent i = new Intent(context, DetailActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra("position", position);
-        i.putExtra("url", repo.url);
+        i.putExtra("url", repo.hdurl);
+
+        String transitionTag = "transition_ltd_" + position;
+        i.putExtra("transition", transitionTag);
+        holder.cardView.setTransitionName(transitionTag);
+
+        ActivityOptionsCompat compat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                activity,
+                Pair.create(holder.cardView, holder.cardView.getTransitionName())
+        );
 
         Glide.with(context)
                 .asBitmap()
-                .load(repo.url)
+                .load(repo.hdurl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .listener(new RequestListener<Bitmap>() {
                     @Override
@@ -110,18 +124,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         });
 
         holder.cardView.setOnClickListener(view -> {
-            context.startActivity(i);
-
-
-            /**
-             * TODO
-             */
-//            Pair<View, String> pair = new Pair<>(view, "DetailView");
-//            ActivityOptionsCompat compat = ActivityOptionsCompat
-//                                            .makeSceneTransitionAnimation(activity, pair);
-//            context.startActivity(i, compat.toBundle());
-
-            //activity.startActivity(i);
+            view.getContext().startActivity(i, compat.toBundle());
         });
     }
 
@@ -132,7 +135,6 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
 
     @Override
     public long getItemId(int position) {
-        //return super.getItemId(position);
         return position;
     }
 
