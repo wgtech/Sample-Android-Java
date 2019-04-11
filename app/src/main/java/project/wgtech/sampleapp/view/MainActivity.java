@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_menu_black_36);
         getSupportActionBar().setTitle("");
 
+
         ViewModelProvider.AndroidViewModelFactory f = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         NASACardViewModel model = f.create(NASACardViewModel.class);
 

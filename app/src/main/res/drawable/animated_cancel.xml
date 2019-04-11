@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="48"
+    android:viewportHeight="48"
+    android:width="48dp"
+    android:height="48dp">
+
+    <group
+        android:name="cancel_group"
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="45">
+
+        <path
+            android:name="cancel_path"
+            android:strokeColor="@color/white"
+            android:strokeWidth="2"
+            android:pathData="M12,0L12,24M0,12,L24,12"/> <!--M12,0L12,24M0,12,L24,12-->
+
+    </group>
+
+
+</vector>
