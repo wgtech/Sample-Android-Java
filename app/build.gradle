@@ -50,4 +50,17 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:2.0.0"
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+
+    // 카카오 로그인 sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'usermgmt', version: project.KAKAO_SDK_VERSION
+    // 카카오링크 sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'kakaolink', version: project.KAKAO_SDK_VERSION
+    // 카카오톡 sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'kakaotalk', version: project.KAKAO_SDK_VERSION
+    // 카카오내비 sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'kakaonavi', version: project.KAKAO_SDK_VERSION
+    // 카카오스토리 sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'kakaostory', version: project.KAKAO_SDK_VERSION
+    // push sdk를 사용하기 위해 필요.
+    implementation group: 'com.kakao.sdk', name: 'push', version: project.KAKAO_SDK_VERSION
 }

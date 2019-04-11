@@ -59,7 +59,6 @@ public class NASACardViewModel extends ViewModel {
                 .build();
 
         NASAImageRepo.NASAApiInterface service = client.create(NASAImageRepo.NASAApiInterface.class);
-
         Call<NASAImageRepo> call = service.get_NASA_images("2019-04-04", "LpKgRB6SznKz4CN54wSxXfvlvS1cd0sgUzAxSgH9");
         call.enqueue(new Callback<NASAImageRepo>() {
             @Override

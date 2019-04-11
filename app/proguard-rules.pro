@@ -19,3 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+
+## kakao
+-keep class com.kakao.** { *; }
+-keepattributes Signature
+-keepclassmembers class * {
+  public static <fields>;
+  public *;
+}
+-dontwarn android.support.v4.**,org.slf4j.**,com.google.android.gms.**
