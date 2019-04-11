@@ -11,4 +11,6 @@
     <color name="gray_transparent20">#33202020</color>
     <color name="gray_transparent30">#4D202020</color>
 
+    <color name="white_transparent100">#00FFFFFF</color>
+
 </resources>

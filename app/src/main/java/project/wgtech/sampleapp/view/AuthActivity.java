@@ -1,24 +1,22 @@
 package project.wgtech.sampleapp.view;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import project.wgtech.sampleapp.R;
+import project.wgtech.sampleapp.databinding.ActivityAuthBinding;
 
 public class AuthActivity extends AppCompatActivity {
     private final static String TAG = AuthActivity.class.getSimpleName();
+    private ActivityAuthBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
 
-    @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        LayoutInflater.from(getBaseContext());
-        return null;
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_auth);
+        binding.setActivity(this);
+
     }
 }

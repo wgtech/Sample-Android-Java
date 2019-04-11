@@ -24,6 +24,10 @@
         <activity android:name=".view.DetailActivity" android:theme="@style/DetailStyle"
             android:configChanges="orientation" android:screenOrientation="portrait">
         </activity>
+
+        <activity android:name=".view.AuthActivity"
+            android:configChanges="orientation" android:screenOrientation="portrait">
+        </activity>
     
     </application>
     
