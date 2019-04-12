@@ -63,4 +63,7 @@ dependencies {
     implementation group: 'com.kakao.sdk', name: 'kakaostory', version: project.KAKAO_SDK_VERSION
     // push sdk를 사용하기 위해 필요.
     implementation group: 'com.kakao.sdk', name: 'push', version: project.KAKAO_SDK_VERSION
+
+
+    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.5'
 }
