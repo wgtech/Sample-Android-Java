@@ -136,5 +136,11 @@ public class MainActivity extends AppCompatActivity {
     private void stopLottieAnimation() {
 //        lottie.cancelAnimation();
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 }
 

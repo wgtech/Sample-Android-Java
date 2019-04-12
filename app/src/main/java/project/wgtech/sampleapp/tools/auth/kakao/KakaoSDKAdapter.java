@@ -2,13 +2,16 @@ package project.wgtech.sampleapp.tools.auth.kakao;
 
 import android.content.Context;
 
+import com.kakao.auth.ApiResponseCallback;
 import com.kakao.auth.ApprovalType;
 import com.kakao.auth.AuthType;
 import com.kakao.auth.IApplicationConfig;
+import com.kakao.auth.IPushConfig;
 import com.kakao.auth.ISessionConfig;
 import com.kakao.auth.KakaoAdapter;
 
 public class KakaoSDKAdapter extends KakaoAdapter {
+
     /**
      * Session Config에 대해서는 default값들이 존재한다.
      * 필요한 상황에서만 override해서 사용하면 됨.
@@ -49,7 +52,22 @@ public class KakaoSDKAdapter extends KakaoAdapter {
         return new IApplicationConfig() {
             @Override
             public Context getApplicationContext() {
-                return GlobalApplication.getGlobalApplicationContext();
+                return KakaoSDKApplication.getInstance().getGlobalApplicationContext();
+            }
+        };
+    }
+
+    @Override
+    public IPushConfig getPushConfig() {
+        return new IPushConfig() {
+            @Override
+            public String getDeviceUUID() {
+                return null;
+            }
+
+            @Override
+            public ApiResponseCallback<Integer> getTokenRegisterCallback() {
+                return null;
             }
         };
     }
