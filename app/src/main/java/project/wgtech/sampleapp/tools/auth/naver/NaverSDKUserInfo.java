@@ -2,6 +2,8 @@ package project.wgtech.sampleapp.tools.auth.naver;
 
 import android.util.Log;
 
+import com.nhn.android.naverlogin.OAuthLogin;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -11,11 +13,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NaverSDKUserInfo {
 
     private final static String TAG = NaverSDKUserInfo.class.getSimpleName();
+
+    private OAuthLogin session;
+
+    public NaverSDKUserInfo(OAuthLogin session) {
+        this.session = session;
+    }
 
     public void getUserInfo(String token) {
         Retrofit client = new Retrofit.Builder()
@@ -24,7 +31,7 @@ public class NaverSDKUserInfo {
                         .callTimeout(1, TimeUnit.MINUTES)
                         .build())
                 .baseUrl("https://openapi.naver.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+                //.addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         NaverSDKApiInterface service = client.create(NaverSDKApiInterface.class);

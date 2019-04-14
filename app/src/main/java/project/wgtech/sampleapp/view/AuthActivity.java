@@ -83,12 +83,6 @@ public class AuthActivity extends AppCompatActivity {
     public void naverAuthClick(View view) {
         Toast.makeText(this, "네이버 인증", Toast.LENGTH_SHORT).show();
         naverApp.initLogin();
-        if (naverApp.getAccessToken() != null) {
-            Log.d(TAG, "naverAuthClick: 성공 " + naverApp.getAccessToken());
-            new NaverSDKUserInfo().getUserInfo(naverApp.getAccessToken());
-        } else {
-            Log.d(TAG, "naverAuthClick: 실패 " + naverApp.getLastErrorDesc() + ", " + naverApp.getLastErrorCode());
-        }
     }
 
     public void kakaoAuthClick(View view) {

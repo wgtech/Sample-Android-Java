@@ -1,10 +1,12 @@
 package project.wgtech.sampleapp.tools.auth.naver;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.nhn.android.naverlogin.OAuthLogin;
+import com.nhn.android.naverlogin.OAuthLoginHandler;
 
 public class NaverSDK {
     private final static String TAG = NaverSDK.class.getSimpleName();
@@ -16,8 +18,6 @@ public class NaverSDK {
     private String clientId;
     private String clientSecret;
     private String clientName;
-
-    private String accessToken;
 
     public NaverSDK(AppCompatActivity activity, String clientId, String clientSecret, String clientName) {
         this.activity = activity;
@@ -35,22 +35,9 @@ public class NaverSDK {
         this.session = OAuthLogin.getInstance();
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
     public void initLogin() {
         getSession().init(context, clientId, clientSecret, clientName);
-        getSession().startOauthLoginActivity(activity, new NaverSDKAuthHandler());
-        accessToken = getSession().getAccessToken(context);
-    }
-
-    public String getLastErrorDesc() {
-        return getSession().getLastErrorDesc(context);
-    }
-
-    public String getLastErrorCode() {
-        return getSession().getLastErrorCode(context).getCode();
+        getSession().startOauthLoginActivity(activity, new NaverSDKHandler());
     }
 
     public void logout() {
@@ -60,5 +47,22 @@ public class NaverSDK {
                 getSession().logoutAndDeleteToken(context);
             }
         };
+    }
+
+    class NaverSDKHandler extends OAuthLoginHandler {
+        private final String TAG = NaverSDKHandler.class.getSimpleName();
+
+        @Override
+        public void run(boolean success) {
+            if (success) {
+                Log.d(TAG, "run: accessToken = " + session.getAccessToken(context));
+                Log.d(TAG, "run: getState = " + session.getState(context).toString());
+                new NaverSDKUserInfo(session).getUserInfo(session.getAccessToken(context));
+            } else {
+                Log.d(TAG, "run: " + session.getLastErrorCode(context).getCode());
+                Log.d(TAG, "run: " + session.getLastErrorDesc(context));
+            }
+
+        }
     }
 }
