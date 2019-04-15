@@ -18,6 +18,7 @@ import butterknife.OnClick;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.viewmodel.NASACardViewModel;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -53,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: MainActivity");
         super.onCreate(savedInstanceState);
+
+        Intent i = getIntent();
+        Log.d(TAG, "onCreate: " + i.getStringExtra("serviceType"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("id"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("email"));
+
         DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         ButterKnife.bind(this);

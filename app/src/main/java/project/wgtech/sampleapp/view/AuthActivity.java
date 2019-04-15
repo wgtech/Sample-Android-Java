@@ -1,5 +1,6 @@
 package project.wgtech.sampleapp.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,13 +10,14 @@ import com.kakao.auth.KakaoSDK;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ObservableArrayMap;
+import androidx.databinding.ObservableMap;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityAuthBinding;
 import project.wgtech.sampleapp.tools.KeyHashTools;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKApplication;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKAdapter;
 import project.wgtech.sampleapp.tools.auth.naver.NaverSDK;
-import project.wgtech.sampleapp.tools.auth.naver.NaverSDKUserInfo;
 
 public class AuthActivity extends AppCompatActivity {
     private final static String TAG = AuthActivity.class.getSimpleName();
@@ -82,7 +84,22 @@ public class AuthActivity extends AppCompatActivity {
 
     public void naverAuthClick(View view) {
         Toast.makeText(this, "네이버 인증", Toast.LENGTH_SHORT).show();
-        naverApp.initLogin();
+        ObservableMap<String, String> map = new ObservableArrayMap<>();
+        map.addOnMapChangedCallback(new ObservableMap.OnMapChangedCallback<ObservableMap<String, String>, String, String>() {
+            @Override
+            public void onMapChanged(ObservableMap<String, String> sender, String key) {
+                if (sender.size() >= 2) {
+                    Log.d(TAG, "onMapChanged: " + sender.get("id") + ", " + sender.get("email"));
+                    Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("serviceType", "NAVER");
+                    intent.putExtra("id", sender.get("id"));
+                    intent.putExtra("email", sender.get("email"));
+                    startActivity(intent);
+                }
+            }
+        });
+        naverApp.login(map);
     }
 
     public void kakaoAuthClick(View view) {
