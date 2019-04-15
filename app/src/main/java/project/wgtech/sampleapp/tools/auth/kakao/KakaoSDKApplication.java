@@ -8,8 +8,11 @@ import android.util.Log;
 import com.kakao.auth.KakaoAdapter;
 import com.kakao.auth.KakaoSDK;
 import com.kakao.auth.Session;
+import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
 import com.kakao.usermgmt.callback.LogoutResponseCallback;
+import com.kakao.usermgmt.callback.MeV2ResponseCallback;
+import com.kakao.usermgmt.response.MeV2Response;
 
 import androidx.appcompat.app.AppCompatActivity;
 import project.wgtech.sampleapp.view.MainActivity;
@@ -51,25 +54,7 @@ public class KakaoSDKApplication extends Application {
     public void getKakaoAuth(KakaoAdapter adapter) {
         Session s = Session.getCurrentSession();
         s.addCallback(new KakaoSessionCallback());
-
-        if (s.isClosed()) {
-            Log.d(TAG, "getKakaoAuth: 세션 닫혀있음.");
-            s.open(adapter.getSessionConfig().getAuthTypes()[0], getActivity());
-            if (s.isOpened()) {
-                Log.d(TAG, "getKakaoAuth: 세션 확인");
-                getActivity().finish();
-            }
-        }
-
-        if (s.isOpened()) {
-            Log.d(TAG, "getKakaoAuth: 세션 이미 살아있음.");
-
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getActivity().startActivity(intent);
-        }
-
-
+        s.open(adapter.getSessionConfig().getAuthTypes()[0], getActivity());
     }
 
     public void loseKakaoAuth() {

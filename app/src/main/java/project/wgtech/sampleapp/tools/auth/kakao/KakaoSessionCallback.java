@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.kakao.auth.ISessionCallback;
+import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
 import com.kakao.usermgmt.callback.LogoutResponseCallback;
+import com.kakao.usermgmt.callback.MeV2ResponseCallback;
+import com.kakao.usermgmt.response.MeV2Response;
 import com.kakao.util.exception.KakaoException;
 
+import project.wgtech.sampleapp.view.AuthActivity;
 import project.wgtech.sampleapp.view.MainActivity;
 
 public class KakaoSessionCallback implements ISessionCallback {
@@ -16,10 +20,26 @@ public class KakaoSessionCallback implements ISessionCallback {
 
     @Override
     public void onSessionOpened() {
-        Context context = KakaoSDKApplication.getGlobalApplicationContext();
-        Intent i = new Intent(context, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
+
+        UserManagement.getInstance().me(new MeV2ResponseCallback() {
+            @Override
+            public void onSuccess(MeV2Response result) {
+                Context context = KakaoSDKApplication.getGlobalApplicationContext();
+                Intent i = new Intent(context, MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.putExtra("serviceType", "KAKAO");
+                i.putExtra("id", String.valueOf(result.getId()));
+                i.putExtra("email", result.getKakaoAccount().getEmail());
+                context.startActivity(i);
+            }
+
+            @Override
+            public void onSessionClosed(ErrorResult errorResult) {
+
+            }
+
+        });
+
     }
 
     @Override

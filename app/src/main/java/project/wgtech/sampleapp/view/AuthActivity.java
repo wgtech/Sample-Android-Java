@@ -96,6 +96,7 @@ public class AuthActivity extends AppCompatActivity {
                     intent.putExtra("id", sender.get("id"));
                     intent.putExtra("email", sender.get("email"));
                     startActivity(intent);
+                    finish();
                 }
             }
         });
