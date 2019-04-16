@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="inDrawer"
-            type="project.wgtech.sampleapp.view.MainActivity"/>
+            name="activity"
+            type="project.wgtech.sampleapp.view.MainActivity" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,7 +42,7 @@
                 android:fontFamily="@font/font"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:onClick="@{inDrawer::clickTitle}"
+
                 android:text="New Project"
                 android:textAlignment="center"
                 android:textColor="@color/black"
@@ -58,8 +58,6 @@
             android:background="@color/black"
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-
-        <!-- 최종 -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_main"
             android:layout_width="match_parent"
@@ -72,17 +70,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- 테스트 -->
-        <!--<com.airbnb.lottie.LottieAnimationView-->
-        <!--android:id="@+id/lottie_main"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--app:layout_constraintRight_toRightOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@id/rl_main_bottom_line"-->
-        <!--app:layout_constraintBottom_toTopOf="@id/tv_main"-->
-        <!--app:lottie_fileName="empty_box.json"/>-->
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
@@ -92,13 +79,11 @@
             android:backgroundTint="@color/white"
             android:scaleType="fitCenter"
             android:src="@drawable/baseline_add_circle_black_48"
-            android:onClick="@{inDrawer::clickFab}"
+
             app:fabSize="auto"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:maxImageSize="56dp"/>
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

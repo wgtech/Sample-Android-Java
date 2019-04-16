@@ -18,6 +18,7 @@
         tools:openDrawer="start">
 
         <include
+            android:id="@+id/view_include_main"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             layout="@layout/layout_main"/>
