@@ -1,7 +1,12 @@
 package project.wgtech.sampleapp.view;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
+    private ActionBarDrawerToggle toggle;
+    private Toolbar toolbar;
+    private RecyclerView rv;
+
+
     private boolean isCardViewOn;
 
     @Override
@@ -40,12 +50,19 @@ public class MainActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setActivity(this);
+        binding.dlMain.closeDrawer(GravityCompat.START);
+        toggle = new ActionBarDrawerToggle(this, binding.dlMain, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle.setToolbarNavigationClickListener(view -> {
+            Toast.makeText(this, "누름! 누름!", Toast.LENGTH_SHORT).show();
+        });
+        toggle.syncState();
+        toolbar = findViewById(R.id.toolbar);
+        binding.nvMain.setVerticalFadingEdgeEnabled(false);
 
-        setSupportActionBar(binding.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_menu_black_36);
         getSupportActionBar().setTitle("");
-
 
         ViewModelProvider.AndroidViewModelFactory f = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         NASACardViewModel model = f.create(NASACardViewModel.class);
@@ -62,11 +79,12 @@ public class MainActivity extends AppCompatActivity {
         dates.add("2019-04-03");
         dates.add("2019-04-04");
 
+        rv = findViewById(R.id.rv_main);
         model.getImages(dates).observe(this, nasaImageRepos -> {
             CardViewAdapter adapter = new CardViewAdapter(MainActivity.this, nasaImageRepos);
-            binding.rvMain.setAdapter(adapter);
-            binding.rvMain.setHasFixedSize(true);
-            binding.rvMain.setLayoutManager(new LinearLayoutManager(
+            rv.setAdapter(adapter);
+            rv.setHasFixedSize(true);
+            rv.setLayoutManager(new LinearLayoutManager(
                     MainActivity.this, RecyclerView.VERTICAL, false));
         });
 
@@ -83,8 +101,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "Main 터치", Toast.LENGTH_SHORT).show();
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -92,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -105,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
 
             default: // Navigation Icon
                 Toast.makeText(this, "Navigation Button", Toast.LENGTH_SHORT).show();
+                if (binding.dlMain.isDrawerOpen(GravityCompat.START)) {
+                    binding.dlMain.closeDrawer(GravityCompat.START);
+                } else {
+                    binding.dlMain.openDrawer(GravityCompat.START);
+                }
                 break;
         }
 
@@ -135,8 +156,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        if (binding.dlMain.isDrawerOpen(GravityCompat.START)) {
+            binding.dlMain.closeDrawers();
+        } else {
+            super.onBackPressed();
+            finish();
+        }
     }
 }
 

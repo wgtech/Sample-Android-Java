@@ -4,4 +4,11 @@
     <!-- CardView -->
     <string name="delete">삭제</string>
 
+    <!-- DrawerLayout -->
+    <string name="logout">Logout</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_id_test">Android Studio</string>
+    <string name="action_settings">Settings</string>
+
 </resources>
