@@ -1,9 +1,11 @@
 package project.wgtech.sampleapp.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityMainBinding;
+import project.wgtech.sampleapp.model.UserInfo;
 import project.wgtech.sampleapp.viewmodel.NASACardViewModel;
 
 import android.content.Intent;
@@ -22,17 +25,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private ActivityMainBinding binding;
 
     private ActionBarDrawerToggle toggle;
     private RecyclerView rv;
+
+    private UserInfo info;
+
 
     private ArrayList<String> dates;
 
@@ -44,14 +53,9 @@ public class MainActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setActivity(this);
 
-        Intent i = getIntent();
-        Log.d(TAG, "onCreate: " + i.getStringExtra("serviceType"));
-        Log.d(TAG, "onCreate: " + i.getStringExtra("id"));
-        Log.d(TAG, "onCreate: " + i.getStringExtra("email"));
-
         getDrawerLayout();
-        getMainLayout();
         getRawData();
+        getMainLayout();
         setDatasIntoRecyclerView();
     }
 
@@ -87,9 +91,54 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "제목 클릭", Toast.LENGTH_SHORT).show();
         });
 
+
+        View nav = binding.nvMain.getHeaderView(0);
+
+        AppCompatButton btn = nav.findViewById(R.id.btn_drawer_logout);
+        btn.setOnClickListener(new OnNavigationHeaderItemClickListener(MainActivity.this));
+
+        AppCompatTextView tv = nav.findViewById(R.id.tv_drawer_name);
+        if (info.getEmail() == null || info.getEmail().equals("")) {
+            tv.setText(info.getId());
+        } else {
+            tv.setText(info.getEmail());
+        }
+
+        AppCompatImageView profile = nav.findViewById(R.id.iv_drawer_head);
+        Glide.with(MainActivity.this)
+                .asBitmap()
+                .load(info.getProfileURL())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .thumbnail(1.0f)
+                .error(R.drawable.baseline_account_circle_black_48)
+                .into(profile);
+
+        AppCompatImageView icon = nav.findViewById(R.id.iv_drawer_service_type);
+        Glide.with(MainActivity.this)
+                .asBitmap()
+                .load(info.getServiceTypeIcon())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .error(R.drawable.baseline_account_circle_black_48)
+                .into(icon);
+
+        binding.nvMain.setNavigationItemSelectedListener(this);
     }
 
     private void getRawData() {
+        Intent i = getIntent();
+        Log.d(TAG, "onCreate: " + i.getStringExtra("serviceType"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("id"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("email"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("profileURL"));
+        Log.d(TAG, "onCreate: " + i.getStringExtra("serviceTypeIconPath"));
+        info = new UserInfo.Builder()
+                .serviceType(i.getStringExtra("serviceType"))
+                .id(i.getStringExtra("id"))
+                .email(i.getStringExtra("email"))
+                .profileURL(i.getStringExtra("profileURL"))
+                .serviceTypeIcon(i.getStringExtra("serviceTypeIconPath"))
+                .build();
+
         // 추가
         dates = new ArrayList<>(1);
         dates.add("2019-03-27");
@@ -125,17 +174,6 @@ public class MainActivity extends AppCompatActivity {
 
     ///////////////////////////////////////
 
-    public void clickFab(View view) {
-        Toast.makeText(MainActivity.this, "Click! Click!", Toast.LENGTH_SHORT).show();
-    }
-
-    public void clickTitle(View view) {
-        // Title 복귀 또는 about
-        Toast.makeText(MainActivity.this, "Main 터치", Toast.LENGTH_SHORT).show();
-    }
-
-    ///////////////////////////////////////
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -166,6 +204,29 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.item_nav_camera:
+                Toast.makeText(MainActivity.this, "카메라 카메라", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.item_nav_gallery:
+                Toast.makeText(MainActivity.this, "갤러리 갤러리", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.nav_share:
+                Toast.makeText(MainActivity.this, "공유 공유", Toast.LENGTH_SHORT).show();
+                break;
+
+            default:
+                break;
+        }
+
+        return false;
+    }
+
 
     @Override
     public void onBackPressed() {

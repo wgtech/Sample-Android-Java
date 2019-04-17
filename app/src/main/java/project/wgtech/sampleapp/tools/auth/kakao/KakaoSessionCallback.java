@@ -12,6 +12,7 @@ import com.kakao.usermgmt.callback.MeV2ResponseCallback;
 import com.kakao.usermgmt.response.MeV2Response;
 import com.kakao.util.exception.KakaoException;
 
+import project.wgtech.sampleapp.model.ServiceType;
 import project.wgtech.sampleapp.view.AuthActivity;
 import project.wgtech.sampleapp.view.MainActivity;
 
@@ -27,9 +28,11 @@ public class KakaoSessionCallback implements ISessionCallback {
                 Context context = KakaoSDKApplication.getGlobalApplicationContext();
                 Intent i = new Intent(context, MainActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                i.putExtra("serviceType", "KAKAO");
+                i.putExtra("serviceType", ServiceType.KAKAO.getValue());
                 i.putExtra("id", String.valueOf(result.getId()));
                 i.putExtra("email", result.getKakaoAccount().getEmail());
+                i.putExtra("profileURL", result.getProfileImagePath());
+                i.putExtra("serviceTypeIconPath", ServiceType.KAKAO.getIconPath());
                 context.startActivity(i);
             }
 

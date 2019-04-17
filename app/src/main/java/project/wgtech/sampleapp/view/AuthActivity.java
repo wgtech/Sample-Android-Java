@@ -14,6 +14,7 @@ import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityAuthBinding;
+import project.wgtech.sampleapp.model.ServiceType;
 import project.wgtech.sampleapp.tools.KeyHashTools;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKApplication;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKAdapter;
@@ -88,13 +89,15 @@ public class AuthActivity extends AppCompatActivity {
         map.addOnMapChangedCallback(new ObservableMap.OnMapChangedCallback<ObservableMap<String, String>, String, String>() {
             @Override
             public void onMapChanged(ObservableMap<String, String> sender, String key) {
-                if (sender.size() >= 2) {
+                if (sender.size() >= 2) { // 필수 : id, email
                     Log.d(TAG, "onMapChanged: " + sender.get("id") + ", " + sender.get("email"));
                     Intent intent = new Intent(AuthActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("serviceType", "NAVER");
+                    intent.putExtra("serviceType", ServiceType.NAVER.getValue());
                     intent.putExtra("id", sender.get("id"));
                     intent.putExtra("email", sender.get("email"));
+                    intent.putExtra("profileURL", sender.get("profile_image"));
+                    intent.putExtra("serviceTypeIconPath", ServiceType.NAVER.getIconPath());
                     startActivity(intent);
                     finish();
                 }

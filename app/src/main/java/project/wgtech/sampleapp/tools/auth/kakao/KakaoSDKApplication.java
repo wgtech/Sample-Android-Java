@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import project.wgtech.sampleapp.view.MainActivity;
 
 public class KakaoSDKApplication extends Application {
-    private final static String TAG = "KakaoSDKApplication";
+    private final static String TAG = KakaoSDKApplication.class.getSimpleName();
 
     private static volatile KakaoSDKApplication instance;
     private static volatile AppCompatActivity activity;

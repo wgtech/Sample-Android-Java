@@ -17,7 +17,7 @@
             android:id="@+id/iv_drawer_head"
             android:layout_width="match_parent"
             android:layout_height="240dp"
-            android:background="@drawable/side_nav_bar"
+            android:background="@color/black"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"/>
 
@@ -55,8 +55,7 @@
             app:layout_constraintBottom_toBottomOf="@id/iv_drawer_service_type" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/tv_drawer_logout"
-            android:clickable="true"
+            android:id="@+id/btn_drawer_logout"
             android:layout_width="80dp"
             android:layout_height="40dp"
             android:background="@null"
