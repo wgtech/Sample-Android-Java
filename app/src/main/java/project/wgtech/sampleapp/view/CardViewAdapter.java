@@ -1,6 +1,7 @@
 package project.wgtech.sampleapp.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -117,10 +119,27 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
         holder.tvDate.setText(repo.date);
 
         holder.btnDelete.setOnClickListener(view -> {
-            repos.remove(position);
-            notifyItemRemoved(position);
-            notifyDataSetChanged();
-            Toast.makeText(context, "삭제 완료", Toast.LENGTH_SHORT).show();
+
+            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        repos.remove(position);
+                        notifyItemRemoved(position);
+                        notifyDataSetChanged();
+                        Toast.makeText(context, "삭제 완료", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (i == DialogInterface.BUTTON_NEGATIVE) {
+                        dialogInterface.cancel();
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogStyleDark);
+            builder.setTitle(R.string.dialog_question_delete)
+                    .setPositiveButton(R.string.yes, listener)
+                    .setNegativeButton(R.string.no, listener).show();
         });
 
         holder.cardView.setOnClickListener(view -> {
@@ -137,8 +156,6 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.CardVi
     public long getItemId(int position) {
         return position;
     }
-
-
 
     public class CardViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;

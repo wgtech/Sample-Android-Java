@@ -37,14 +37,24 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
+    <!-- Navigation Drawer Layout -->
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Dialog -->
+    <style name="AlertDialogStyleLight" parent="Base.Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/white</item>
+        <item name="android:textSize">15dp</item>
+    </style>
+
+    <style name="AlertDialogStyleDark" parent="Base.Theme.MaterialComponents.Dialog.Alert">
+        <item name="android:colorAccent">@color/white</item>
+        <item name="android:textSize">15dp</item>
+    </style>
 
 
 </resources>
