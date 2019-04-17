@@ -3,6 +3,9 @@
     package="project.wgtech.sampleapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".tools.auth.kakao.KakaoSDKApplication"
@@ -31,14 +34,26 @@
             android:name=".view.DetailActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailStyle"></activity> <!-- 인증 -->
+            android:theme="@style/DetailStyle"></activity>
+        <activity android:name=".view.CameraActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
+
+        <activity
+            android:name=".tools.PermissionsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
+
+        <!-- 인증 -->
         <activity
             android:name=".view.AuthActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity> <!-- 키 -->
+            android:screenOrientation="portrait"></activity>
+        <!-- 키 -->
         <meta-data
             android:name="com.kakao.sdk.AppKey"
-            android:value="@string/kakao_key" /> <!-- 카카오 웹 인증 -->
+            android:value="@string/kakao_key" />
+        <!-- 카카오 웹 인증 -->
         <activity
             android:name="com.kakao.auth.authorization.authcode.KakaoWebViewActivity"
             android:launchMode="singleTop"

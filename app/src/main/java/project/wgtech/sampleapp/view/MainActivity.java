@@ -1,6 +1,7 @@
 package project.wgtech.sampleapp.view;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityMainBinding;
 import project.wgtech.sampleapp.model.UserInfo;
+import project.wgtech.sampleapp.tools.Constants;
 import project.wgtech.sampleapp.viewmodel.NASACardViewModel;
 
 import android.content.Intent;
@@ -210,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()) {
             case R.id.item_nav_camera:
                 Toast.makeText(MainActivity.this, "카메라 카메라", Toast.LENGTH_SHORT).show();
+                Intent camera = new Intent(MainActivity.this, CameraActivity.class);
+                startActivityForResult(camera, Constants.CAMERA_REQUEST);
                 break;
 
             case R.id.item_nav_gallery:
@@ -223,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 break;
         }
+        binding.dlMain.closeDrawers();
 
         return false;
     }
@@ -235,6 +240,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             super.onBackPressed();
             finish();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Constants.PERMISSIONS_RESPONSE_FAIL) {
+            Snackbar.make(findViewById(R.id.dl_main), "권한 확인바랍니다.", Snackbar.LENGTH_LONG).show();
+        }
+
+        if (resultCode == Constants.CAMERA_PIC_OK) {
+            // 데이터 새로고침
+            Log.d(TAG, "onActivityResult: 카메라 저장 성공");
         }
     }
 }

@@ -8,6 +8,11 @@
     <!-- Exception -->
     <string name="exception_not_found_activity_context">Activity 의 Context가 필요합니다.</string>
 
+    <!-- Permission -->
+    <string name="permission_request_camera">카메라 권한이 필요합니다.</string>
+    <string name="permission_request_write_external_storage">파일 쓰기 권한이 필요합니다.</string>
+    <string name="permission_request_read_external_storage">파일 읽기 권한이 필요합니다.</string>
+
     <!-- CardView -->
     <string name="delete">삭제</string>
 
