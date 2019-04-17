@@ -18,7 +18,7 @@ import project.wgtech.sampleapp.model.ServiceType;
 import project.wgtech.sampleapp.tools.KeyHashTools;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKApplication;
 import project.wgtech.sampleapp.tools.auth.kakao.KakaoSDKAdapter;
-import project.wgtech.sampleapp.tools.auth.naver.NaverSDK;
+import project.wgtech.sampleapp.tools.auth.naver.NaverSDKApplication;
 
 public class AuthActivity extends AppCompatActivity {
     private final static String TAG = AuthActivity.class.getSimpleName();
@@ -26,7 +26,7 @@ public class AuthActivity extends AppCompatActivity {
     private ActivityAuthBinding binding;
     private KakaoSDKAdapter kakaoAdapter;
     private KakaoSDKApplication kakaoApp;
-    private NaverSDK naverApp;
+    private NaverSDKApplication naverApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,30 +58,15 @@ public class AuthActivity extends AppCompatActivity {
 
         // 네이버
         if (naverApp == null) {
-            naverApp = new NaverSDK(AuthActivity.this,
+            naverApp = new NaverSDKApplication(AuthActivity.this,
                 getString(R.string.naver_client_id),
                 getString(R.string.naver_client_secret),
                 getString(R.string.naver_client_name)
             );
-            naverApp.setSession();
         }
 
     }
 
-    private void stopSDK() {
-        // 카카오
-        Log.d(TAG, "stopSDK: 종료");
-        if (KakaoSDK.getAdapter() != null && kakaoApp != null) {
-            kakaoApp.loseKakaoAuth(); // 로그아웃 테스트
-        }
-
-        // 네이버
-        if (naverApp != null) {
-            naverApp.logout();
-            naverApp = null;
-        }
-
-    }
 
     public void naverAuthClick(View view) {
         Toast.makeText(this, "네이버 인증", Toast.LENGTH_SHORT).show();
@@ -111,6 +96,7 @@ public class AuthActivity extends AppCompatActivity {
         kakaoApp = KakaoSDKApplication.getInstance();
         kakaoApp.setActivity(this);
         kakaoApp.getKakaoAuth(KakaoSDK.getAdapter());
+        finish();
     }
 
     public void googleAuthClick(View view) {
@@ -119,7 +105,6 @@ public class AuthActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopSDK();
         super.onDestroy();
     }
 }
