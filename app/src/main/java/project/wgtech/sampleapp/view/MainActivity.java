@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) { // Account Icon
             case R.id.account_item:
-                Snackbar.make(findViewById(R.id.main_layout), "계정 확인바랍니다.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.dl_main), "계정 확인바랍니다.", Snackbar.LENGTH_LONG).show();
                 break;
 
             default: // Navigation Icon
