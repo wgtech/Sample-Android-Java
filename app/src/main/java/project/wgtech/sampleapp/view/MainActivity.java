@@ -143,15 +143,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // 추가
         dates = new ArrayList<>(1);
-        dates.add("2019-03-27");
-        dates.add("2019-03-28");
-        dates.add("2019-03-29");
-        dates.add("2019-03-30");
-        dates.add("2019-03-31");
         dates.add("2019-04-01");
         dates.add("2019-04-02");
         dates.add("2019-04-03");
         dates.add("2019-04-04");
+        dates.add("2019-04-05");
+        dates.add("2019-04-06");
+        dates.add("2019-04-07");
+        dates.add("2019-04-08");
+        dates.add("2019-04-09");
+        dates.add("2019-04-10");
     }
 
     private void setDatasIntoRecyclerView() {
@@ -218,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.item_nav_gallery:
                 Toast.makeText(MainActivity.this, "갤러리 갤러리", Toast.LENGTH_SHORT).show();
+                Intent gallery = new Intent(MainActivity.this, GalleryActivity.class);
+                startActivityForResult(gallery, Constants.GALLERY_REQUEST);
                 break;
 
             case R.id.nav_share:
@@ -247,12 +250,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Constants.PERMISSIONS_RESPONSE_FAIL) {
-            Snackbar.make(findViewById(R.id.dl_main), "권한 확인바랍니다.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(binding.dlMain, "권한 확인바랍니다.", Snackbar.LENGTH_LONG).show();
         }
 
         if (resultCode == Constants.CAMERA_PIC_OK) {
             // 데이터 새로고침
             Log.d(TAG, "onActivityResult: 카메라 저장 성공");
+        }
+
+        if (resultCode == Constants.GALLERY_RESPONSE_OK) {
+            // 호출
+            Log.d(TAG, "onActivityResult: 사진 불러오기 성공 " + data.getData().getPath());
+        }
+
+        if (resultCode == Constants.GALLERY_RESPONSE_FAIL) {
+            Log.d(TAG, "onActivityResult: 사진 불러오기 실패/취소");
         }
     }
 }

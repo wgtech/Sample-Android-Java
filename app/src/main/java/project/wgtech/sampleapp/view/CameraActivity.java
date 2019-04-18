@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -15,6 +14,7 @@ import project.wgtech.sampleapp.tools.PermissionsActivity;
 public class CameraActivity extends AppCompatActivity {
 
     private final static String TAG = CameraActivity.class.getSimpleName();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,7 +58,9 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void initCamera() {
-        Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(camera, Constants.CAMERA_REQUEST);
+//        Intent camera = new Intent();
+//        camera.setType(MediaStore.ACTION_IMAGE_CAPTURE);
+//        camera.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//        startActivityForResult(camera, Constants.CAMERA_REQUEST);
     }
 }
