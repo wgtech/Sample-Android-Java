@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,11 +46,14 @@ public class GalleryActivity extends AppCompatActivity {
         // 카메라
         if (resultCode == Constants.GALLERY_RESPONSE_OK) {
             // 저장
+            Log.d(TAG, "onActivityResult: " + data.getData().getPath());
             setResult(resultCode);
             sendBroadcast(data);
         }
     }
 
     private void initGallery() {
+        Intent intent = new Intent(Intent.CATEGORY_APP_GALLERY);
+        startActivityForResult(intent, Constants.GALLERY_REQUEST);
     }
 }

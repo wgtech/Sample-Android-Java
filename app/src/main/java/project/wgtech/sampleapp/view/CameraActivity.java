@@ -51,6 +51,7 @@ public class CameraActivity extends AppCompatActivity {
         // 카메라
         if (resultCode == Constants.CAMERA_PIC_OK) {
             // 저장
+            Log.d(TAG, "onActivityResult: " + data.getData().getPath());
             setResult(resultCode);
             sendBroadcast(data);
         }
