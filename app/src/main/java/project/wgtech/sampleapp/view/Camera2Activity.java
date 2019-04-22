@@ -59,6 +59,8 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     private CaptureRequest.Builder reqBuilder;
     private ImageReader reader;
 
+    private boolean isPreview;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,7 +146,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         camera = c;
 
                         try {
-                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
                             reqBuilder.addTarget(holder.getSurface());
                             reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
@@ -155,29 +157,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                                         public void onConfigured(@NonNull CameraCaptureSession s) {
                                             Log.d(TAG, "onConfigured: ");
                                             session = s;
-                                            try {
-                                                session.setRepeatingRequest(
-                                                    reqBuilder.build(),
-                                                    new CameraCaptureSession.CaptureCallback() {
-                                                        @Override
-                                                        public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
-                                                            super.onCaptureStarted(session, request, timestamp, frameNumber);
-                                                        }
-
-                                                        @Override
-                                                        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                                                            super.onCaptureCompleted(session, request, result);
-                                                        }
-
-                                                        @Override
-                                                        public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
-                                                            super.onCaptureFailed(session, request, failure);
-                                                        }
-                                                    }, null);
-                                            } catch (CameraAccessException e) {
-                                                e.printStackTrace();
-                                            }
-                                            
+                                            startPreview();
                                         }
 
                                         @Override
@@ -191,6 +171,8 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         } catch (CameraAccessException e) {
                             e.printStackTrace();
                         }
+
+                        isPreview = true;
                     }
 
                     @Override
@@ -250,24 +232,56 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
     ////////////////////////////////////////////////////////////////////////
 
+    private void startPreview() {
+        isPreview = true;
+        try {
+            session.setRepeatingRequest(
+                    reqBuilder.build(),
+                    new CameraCaptureSession.CaptureCallback() {
+                        @Override
+                        public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                            super.onCaptureStarted(session, request, timestamp, frameNumber);
+                        }
+
+                        @Override
+                        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                            super.onCaptureCompleted(session, request, result);
+                        }
+
+                        @Override
+                        public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
+                            super.onCaptureFailed(session, request, failure);
+                        }
+                    }, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopPreview() {
+        isPreview = false;
+        try {
+            session.stopRepeating();
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+
     public void clickLensChange(View view) {
         Toast.makeText(context, "전후 반전", Toast.LENGTH_SHORT).show();
     }
 
     public void clickCapture(View view) {
-        Toast.makeText(context, "촬영", Toast.LENGTH_SHORT).show();
-        try {
-            session.capture(reqBuilder.build(),
-                new CameraCaptureSession.CaptureCallback() {
-                    @Override
-                    public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                        Log.d(TAG, "onCaptureCompleted: 촬영 완료");
-                        super.onCaptureCompleted(session, request, result);
-                    }
-                }, null);
+        if (isPreview) {
+            Toast.makeText(context, "저장", Toast.LENGTH_SHORT).show();
+            stopPreview();
 
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
+        } else {
+            Toast.makeText(context, "촬영 재개", Toast.LENGTH_SHORT).show();
+            startPreview();
         }
 
     }
