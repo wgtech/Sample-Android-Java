@@ -148,7 +148,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         try {
                             reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
                             reqBuilder.addTarget(holder.getSurface());
-                            reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+                            reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
                             camera.createCaptureSession(
                                     Arrays.asList(holder.getSurface()),
@@ -262,10 +262,10 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         isPreview = false;
         try {
             session.stopRepeating();
+
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-
     }
 
     ////////////////////////////////////////////////////////////////////////
