@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kakao_key">c7f059f9d0ea78f86b1c95b00c054df6</string>
+
+    <string name="naver_client_name">notebook</string>
+    <string name="naver_client_id">eSp9Qh3o0n6xt21BDo57</string>
+    <string name="naver_client_secret">KKLBDCiuA7</string>
+
+</resources>

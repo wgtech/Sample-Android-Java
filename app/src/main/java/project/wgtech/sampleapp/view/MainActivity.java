@@ -143,16 +143,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // 추가
         dates = new ArrayList<>(1);
-        dates.add("2019-04-01");
-        dates.add("2019-04-02");
-        dates.add("2019-04-03");
-        dates.add("2019-04-04");
-        dates.add("2019-04-05");
-        dates.add("2019-04-06");
-        dates.add("2019-04-07");
-        dates.add("2019-04-08");
-        dates.add("2019-04-09");
-        dates.add("2019-04-10");
+//        dates.add("2019-04-01");
+//        dates.add("2019-04-02");
+//        dates.add("2019-04-03");
+//        dates.add("2019-04-04");
+//        dates.add("2019-04-05");
+//        dates.add("2019-04-06");
+//        dates.add("2019-04-07");
+//        dates.add("2019-04-08");
+//        dates.add("2019-04-09");
+//        dates.add("2019-04-10");
     }
 
     private void setDatasIntoRecyclerView() {
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()) {
             case R.id.item_nav_camera:
                 Toast.makeText(MainActivity.this, "카메라 카메라", Toast.LENGTH_SHORT).show();
-                Intent camera = new Intent(MainActivity.this, CameraActivity.class);
+                Intent camera = new Intent(MainActivity.this, Camera2Activity.class);
                 startActivityForResult(camera, Constants.CAMERA_REQUEST);
                 break;
 
