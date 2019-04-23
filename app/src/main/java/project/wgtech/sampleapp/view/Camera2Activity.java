@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -36,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -133,7 +136,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
         manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
 
-        reader = ImageReader.newInstance(1440, 1080, ImageFormat.JPEG, 2);
+        reader = ImageReader.newInstance(1440, 1080, ImageFormat.JPEG, 1);
         reader.setOnImageAvailableListener(this, null);
 
         try {
@@ -220,11 +223,17 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     @Override
     public void onImageAvailable(ImageReader reader) {
         Image img = reader.acquireLatestImage();
-        if (reader.getImageFormat() == ImageFormat.JPEG) {
-            Log.d(TAG, "onImageAvailable: " + img.getTimestamp());
-        }
 
         if (img != null) {
+            if (reader.getImageFormat() == ImageFormat.JPEG) {
+                ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+                byte[] bytes = new byte[buffer.capacity()];
+                buffer.get(bytes);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                Log.d(TAG, "onImageAvailable: " + img.getTimestamp());
+            }
+
             img.close();
         }
 
@@ -244,11 +253,6 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         }
 
                         @Override
-                        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                            super.onCaptureCompleted(session, request, result);
-                        }
-
-                        @Override
                         public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
                             super.onCaptureFailed(session, request, failure);
                         }
@@ -262,6 +266,18 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         isPreview = false;
         try {
             session.stopRepeating();
+            session.capture(reqBuilder.build(), new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    Log.d(TAG, "onCaptureCompleted: 캡쳐 완료");
+                    super.onCaptureCompleted(session, request, result);
+                }
+
+                @Override
+                public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
+                    super.onCaptureFailed(session, request, failure);
+                }
+            }, null);
 
         } catch (CameraAccessException e) {
             e.printStackTrace();
