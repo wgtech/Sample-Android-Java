@@ -15,7 +15,7 @@
 
         <SurfaceView
             android:id="@+id/sv_camera_preview"
-            android:layout_height="530dp"
+            android:layout_height="560dp"
             android:layout_width="match_parent"
             android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toTopOf="@id/ib_camera_photo"/>
