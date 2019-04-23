@@ -15,7 +15,7 @@
 
         <SurfaceView
             android:id="@+id/sv_camera_preview"
-            android:layout_height="560dp"
+            android:layout_height="500dp"
             android:layout_width="match_parent"
             android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toTopOf="@id/ib_camera_photo"/>
@@ -26,8 +26,8 @@
             android:src="@drawable/baseline_camera_rear_black_36"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:tint="@color/gray"
+            android:layout_margin="15dp"
+            android:tint="@color/white"
             android:onClick="@{activity::clickLensChange}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -39,7 +39,7 @@
             android:src="@drawable/baseline_camera_black_48"
             android:layout_width="100dp"
             android:layout_height="50dp"
-            android:layout_margin="20dp"
+            android:layout_margin="15dp"
             android:onClick="@{activity::clickCapture}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

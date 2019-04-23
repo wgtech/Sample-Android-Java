@@ -4,6 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -18,6 +21,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -30,6 +34,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -88,19 +97,22 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera2);
         binding.setActivity(this);
 
-        reader = ImageReader.newInstance(1440, 1080, PixelFormat.RGBA_8888, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
+        reader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
         reader.setOnImageAvailableListener(this, null);
 
         binding.svCameraPreview.getHolder().setKeepScreenOn(true);
         binding.svCameraPreview.getHolder().setFixedSize(1440, 1080);
         binding.svCameraPreview.getHolder().addCallback(this);
 
+        // surfaces 구현
         surfaces = new ArrayList<>();
         surfaces.add(reader.getSurface());
         surfaces.add(binding.svCameraPreview.getHolder().getSurface());
 
-
         manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
+        if (manager != null) {
+            Log.d(TAG, "initActivity: CameraManager 살아 있다");
+        }
 
         try {
             for (String camId: manager.getCameraIdList()) {
@@ -112,7 +124,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         camera = c;
 
                         try {
-                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
                             reqBuilder.addTarget(binding.svCameraPreview.getHolder().getSurface());
                             reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
@@ -137,8 +149,6 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         } catch (CameraAccessException e) {
                             e.printStackTrace();
                         }
-
-                        isPreview = true;
                     }
 
                     @Override
@@ -190,9 +200,10 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
     ////////////////////////////////////////////////////////////////////////
 
+
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated: SurfaceView 생성");
+        Log.d(TAG, "surfaceCreated: SurfaceView 생성 * 최초 1회로써 생성되지 않음.");
     }
 
     @Override
@@ -209,10 +220,15 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d(TAG, "surfaceDestroyed: ");
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
         if (reader != null) reader.close();
         if (session != null) session.close();
         if (camera != null) camera.close();
-        if (manager != null) manager = null;
+        super.onDestroy();
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -222,15 +238,19 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         Image img = reader.acquireNextImage();
 
         if (img != null) {
-            //if (reader.getImageFormat() == ImageFormat.JPEG) {
-            if (reader.getImageFormat() == PixelFormat.RGBA_8888) {
-                Log.d(TAG, "onImageAvailable: 여기서부터 문제");
+            if (reader.getImageFormat() == ImageFormat.JPEG) {
                 ByteBuffer buffer = img.getPlanes()[0].getBuffer();
                 byte[] bytes = new byte[buffer.capacity()];
                 buffer.get(bytes);
 
-                Log.d(TAG, "onImageAvailable: " + bytes.length + ", " + img.getTimestamp());
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                Log.d(TAG, "onImageAvailable: 저장 준비 " + baos.toByteArray().length + " bytes.");
+                save(baos.toByteArray(), img.getTimestamp());
+                bitmap.recycle();
             }
 
             img.close();
@@ -245,18 +265,19 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
             reqBuilder.removeTarget(reader.getSurface());
             reqBuilder.addTarget(binding.svCameraPreview.getHolder().getSurface());
             session.setRepeatingRequest(
-                    reqBuilder.build(),
-                    new CameraCaptureSession.CaptureCallback() {
-                        @Override
-                        public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
-                            super.onCaptureStarted(session, request, timestamp, frameNumber);
-                        }
+                reqBuilder.build(),
+                new CameraCaptureSession.CaptureCallback() {
+                    @Override
+                    public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                        super.onCaptureStarted(session, request, timestamp, frameNumber);
+                    }
 
-                        @Override
-                        public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
-                            super.onCaptureFailed(session, request, failure);
-                        }
-                    }, null);
+                    @Override
+                    public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
+                        super.onCaptureFailed(session, request, failure);
+                    }
+                }, null
+            );
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -286,8 +307,31 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         }
     }
 
-    private void save(byte[] bytes) {
-        // save
+    private void save(byte[] bytes, long timestamp) {
+        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
+                + "/WGSampleApp/");
+        File file = new File(dir.getAbsolutePath() + "/" + timestamp + ".jpg");
+
+        try {
+            if (!dir.exists()) {
+                dir.mkdirs();
+                Log.d(TAG, "save: Directory created");
+            }
+
+            if (!file.exists()) {
+                file.createNewFile();
+                Log.d(TAG, "save: File created");
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bytes);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     ////////////////////////////////////////////////////////////////////////
