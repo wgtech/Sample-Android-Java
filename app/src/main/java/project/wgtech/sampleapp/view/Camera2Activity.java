@@ -44,10 +44,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityCamera2Binding;
 import project.wgtech.sampleapp.tools.Constants;
+import project.wgtech.sampleapp.tools.ImageSenderInterface;
 import project.wgtech.sampleapp.tools.PermissionsActivity;
+import project.wgtech.sampleapp.tools.RetrofitBuilder;
+import project.wgtech.sampleapp.tools.UriFilePathConverter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class Camera2Activity extends AppCompatActivity implements TextureView.SurfaceTextureListener, ImageReader.OnImageAvailableListener {
 
@@ -254,6 +264,8 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
 
                 Log.d(TAG, "onImageAvailable: 저장 준비 " + baos.toByteArray().length + " bytes.");
                 save(baos.toByteArray(), img.getTimestamp());
+                upload(img.getTimestamp());
+
                 bitmap.recycle();
             }
 
@@ -336,7 +348,33 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    private void upload(long timestamp) {
+
+        Retrofit imgSender = new RetrofitBuilder().build(getString(R.string.server_ipv4));
+        ImageSenderInterface service = imgSender.create(ImageSenderInterface.class);
+
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
+                + "/WGSampleApp/" + "/" + timestamp + ".jpg"
+        );
+        Log.d(TAG, "clickOk: " + file.getAbsolutePath());
+
+        RequestBody requestImg = RequestBody.create(MediaType.parse("Content-type: multipart/formed-data"), file);
+        Call<MultipartBody.Part> call = service.postImage(
+                MultipartBody.Part.createFormData("image", file.getName(), requestImg)
+        );
+        call.enqueue(new Callback<MultipartBody.Part>() {
+            @Override
+            public void onResponse(Call<MultipartBody.Part> call, Response<MultipartBody.Part> response) {
+                Log.d(TAG, "onResponse: 성공");
+            }
+
+            @Override
+            public void onFailure(Call<MultipartBody.Part> call, Throwable t) {
+                Log.d(TAG, "onFailure: 실패 " + t.getMessage());
+            }
+        });
     }
 
     ////////////////////////////////////////////////////////////////////////
