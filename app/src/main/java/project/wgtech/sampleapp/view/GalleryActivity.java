@@ -138,7 +138,7 @@ public class GalleryActivity extends AppCompatActivity {
 
         UriFilePathConverter converter = new UriFilePathConverter(GalleryActivity.this);
 
-        Retrofit imgSender = new RetrofitBuilder().build("");
+        Retrofit imgSender = new RetrofitBuilder().build(getString(R.string.server_ipv4));
         ImageSenderInterface service = imgSender.create(ImageSenderInterface.class);
 
         File file = new File(converter.getPathFromUri(preview.getData()));
