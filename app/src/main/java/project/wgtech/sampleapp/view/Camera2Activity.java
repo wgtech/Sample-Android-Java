@@ -88,7 +88,6 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         }
     }
 
-    @SuppressLint("MissingPermission")
     private void initActivity() {
         Log.d(TAG, "initActivity: ");
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -97,22 +96,54 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera2);
         binding.setActivity(this);
 
-        reader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
-        reader.setOnImageAvailableListener(this, null);
-
         binding.svCameraPreview.getHolder().setKeepScreenOn(true);
         binding.svCameraPreview.getHolder().setFixedSize(1440, 1080);
         binding.svCameraPreview.getHolder().addCallback(this);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // 권한
+        if (resultCode == Constants.PERMISSIONS_RESPONSE_OK) {
+            Log.d(TAG, "onActivityResult: 권한 획득 성공 후 카메라 실행");
+            binding.svCameraPreview.setVisibility(View.VISIBLE);
+            initActivity();
+        }
+
+        else if (resultCode == Constants.PERMISSIONS_RESPONSE_FAIL) {
+            // 권한 없음
+            setResult(Constants.PERMISSIONS_RESPONSE_FAIL);
+            finish();
+        }
+
+        // 카메라
+        if (resultCode == Constants.CAMERA_PIC_OK) {
+            // 저장
+            Log.d(TAG, "onActivityResult: " + data.getData().getPath());
+            setResult(resultCode);
+            sendBroadcast(data);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.d(TAG, "surfaceCreated: SurfaceView 생성 * 최초 1회로써 생성되지 않음.");
+
+        reader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
+        reader.setOnImageAvailableListener(this, null);
+
+        manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
 
         // surfaces 구현
         surfaces = new ArrayList<>();
         surfaces.add(reader.getSurface());
         surfaces.add(binding.svCameraPreview.getHolder().getSurface());
-
-        manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
-        if (manager != null) {
-            Log.d(TAG, "initActivity: CameraManager 살아 있다");
-        }
 
         try {
             for (String camId: manager.getCameraIdList()) {
@@ -169,41 +200,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-    }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // 권한
-        if (resultCode == Constants.PERMISSIONS_RESPONSE_OK) {
-            Log.d(TAG, "onActivityResult: 권한 획득 성공 후 카메라 실행");
-            binding.svCameraPreview.setVisibility(View.VISIBLE);
-            initActivity();
-        }
-
-        else if (resultCode == Constants.PERMISSIONS_RESPONSE_FAIL) {
-            // 권한 없음
-            setResult(Constants.PERMISSIONS_RESPONSE_FAIL);
-            finish();
-        }
-
-        // 카메라
-        if (resultCode == Constants.CAMERA_PIC_OK) {
-            // 저장
-            Log.d(TAG, "onActivityResult: " + data.getData().getPath());
-            setResult(resultCode);
-            sendBroadcast(data);
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////
-
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated: SurfaceView 생성 * 최초 1회로써 생성되지 않음.");
     }
 
     @Override
@@ -220,15 +217,9 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d(TAG, "surfaceDestroyed: ");
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.d(TAG, "onDestroy: ");
         if (reader != null) reader.close();
         if (session != null) session.close();
         if (camera != null) camera.close();
-        super.onDestroy();
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -308,7 +299,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     }
 
     private void save(byte[] bytes, long timestamp) {
-        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
+        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
                 + "/WGSampleApp/");
         File file = new File(dir.getAbsolutePath() + "/" + timestamp + ".jpg");
 
