@@ -305,3 +305,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/git,java,linux,macos,kotlin,android,windows,androidstudio
+
+
+# additional
+[Kk]eys.xml
