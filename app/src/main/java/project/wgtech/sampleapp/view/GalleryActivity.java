@@ -3,6 +3,7 @@ package project.wgtech.sampleapp.view;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,10 +22,25 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
+import java.io.File;
+import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okio.BufferedSink;
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityGalleryBinding;
 import project.wgtech.sampleapp.tools.Constants;
+import project.wgtech.sampleapp.tools.ImageSenderInterface;
 import project.wgtech.sampleapp.tools.PermissionsActivity;
+import project.wgtech.sampleapp.tools.RetrofitBuilder;
+import project.wgtech.sampleapp.tools.UriFilePathConverter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.http.Multipart;
 
 public class GalleryActivity extends AppCompatActivity {
     private final static String TAG = GalleryActivity.class.getSimpleName();
@@ -119,6 +135,32 @@ public class GalleryActivity extends AppCompatActivity {
 
     public void clickOk(View view) {
         Toast.makeText(this, "사진을 보냅니다.", Toast.LENGTH_SHORT).show();
+
+        UriFilePathConverter converter = new UriFilePathConverter(GalleryActivity.this);
+
+        Retrofit imgSender = new RetrofitBuilder().build("");
+        ImageSenderInterface service = imgSender.create(ImageSenderInterface.class);
+
+        File file = new File(converter.getPathFromUri(preview.getData()));
+        Log.d(TAG, "clickOk: " + file.getAbsolutePath());
+
+        RequestBody requestImg = RequestBody.create(MediaType.parse("Content-type: multipart/formed-data"), file);
+        Call<MultipartBody.Part> call = service.postImage(
+                MultipartBody.Part.createFormData("image", file.getName(), requestImg)
+        );
+        call.enqueue(new Callback<MultipartBody.Part>() {
+            @Override
+            public void onResponse(Call<MultipartBody.Part> call, Response<MultipartBody.Part> response) {
+                Log.d(TAG, "onResponse: 성공");
+            }
+
+            @Override
+            public void onFailure(Call<MultipartBody.Part> call, Throwable t) {
+                Log.d(TAG, "onFailure: 실패 " + t.getMessage());
+            }
+        });
+
+
         setResult(Constants.GALLERY_RESPONSE_OK, preview);
         finish();
     }
