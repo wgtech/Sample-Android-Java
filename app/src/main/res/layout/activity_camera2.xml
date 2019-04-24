@@ -13,12 +13,16 @@
         android:layout_height="match_parent"
         android:background="@color/black">
 
-        <SurfaceView
-            android:id="@+id/sv_camera_preview"
-            android:layout_height="500dp"
+        <TextureView
+            android:id="@+id/tev_camera_preview"
+            android:layout_height="0dp"
             android:layout_width="match_parent"
             android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@id/ib_camera_photo"/>
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,3:4"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ib_camera_lens_change"
@@ -30,6 +34,7 @@
             android:tint="@color/white"
             android:onClick="@{activity::clickLensChange}"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tev_camera_preview"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -39,10 +44,10 @@
             android:src="@drawable/baseline_camera_black_48"
             android:layout_width="100dp"
             android:layout_height="50dp"
-            android:layout_margin="15dp"
             android:onClick="@{activity::clickCapture}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tev_camera_preview"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

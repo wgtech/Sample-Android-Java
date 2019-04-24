@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.PixelFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -17,14 +17,16 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -47,7 +49,7 @@ import project.wgtech.sampleapp.databinding.ActivityCamera2Binding;
 import project.wgtech.sampleapp.tools.Constants;
 import project.wgtech.sampleapp.tools.PermissionsActivity;
 
-public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.Callback2, ImageReader.OnImageAvailableListener {
+public class Camera2Activity extends AppCompatActivity implements TextureView.SurfaceTextureListener, ImageReader.OnImageAvailableListener {
 
     private final static String TAG = Camera2Activity.class.getSimpleName();
 
@@ -61,6 +63,8 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
     private CameraCaptureSession session;
     private CaptureRequest.Builder reqBuilder;
     private ImageReader reader;
+
+    private Surface surface;
     private ArrayList<Surface> surfaces;
 
     private boolean isPreview;
@@ -95,10 +99,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera2);
         binding.setActivity(this);
-
-        binding.svCameraPreview.getHolder().setKeepScreenOn(true);
-        binding.svCameraPreview.getHolder().setFixedSize(1440, 1080);
-        binding.svCameraPreview.getHolder().addCallback(this);
+        binding.tevCameraPreview.setSurfaceTextureListener(this);
     }
 
 
@@ -109,7 +110,6 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         // 권한
         if (resultCode == Constants.PERMISSIONS_RESPONSE_OK) {
             Log.d(TAG, "onActivityResult: 권한 획득 성공 후 카메라 실행");
-            binding.svCameraPreview.setVisibility(View.VISIBLE);
             initActivity();
         }
 
@@ -130,24 +130,37 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
     ////////////////////////////////////////////////////////////////////////
 
+
+
     @SuppressLint("MissingPermission")
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated: SurfaceView 생성 * 최초 1회로써 생성되지 않음.");
-
-        reader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
-        reader.setOnImageAvailableListener(this, null);
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+        Log.d(TAG, "onSurfaceTextureAvailable: ");
 
         manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
-
-        // surfaces 구현
-        surfaces = new ArrayList<>();
-        surfaces.add(reader.getSurface());
-        surfaces.add(binding.svCameraPreview.getHolder().getSurface());
 
         try {
             for (String camId: manager.getCameraIdList()) {
                 cc = manager.getCameraCharacteristics(camId);
+                StreamConfigurationMap map = cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                Size size = map.getOutputSizes(SurfaceTexture.class)[0];
+                Log.d(TAG, "onSurfaceTextureAvailable: " + size.getWidth() + ", " + size.getHeight());
+
+                // ImageReader 생성
+                //reader = ImageReader.newInstance(size.getWidth(), size.getHeight(), ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
+                reader = ImageReader.newInstance(1280, 720, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
+                reader.setOnImageAvailableListener(this, null);
+
+                // surfaces 구현
+                //surfaceTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
+                surfaceTexture.setDefaultBufferSize(1280, 720);
+                surface = new Surface(surfaceTexture);
+
+                surfaces = new ArrayList<>();
+                surfaces.add(reader.getSurface());
+                surfaces.add(surface);
+
+
                 manager.openCamera(camId, new CameraDevice.StateCallback() {
                     @Override
                     public void onOpened(@NonNull CameraDevice c) {
@@ -155,8 +168,8 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                         camera = c;
 
                         try {
-                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-                            reqBuilder.addTarget(binding.svCameraPreview.getHolder().getSurface());
+                            reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                            reqBuilder.addTarget(surface);
                             reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
                             camera.createCaptureSession(
@@ -192,7 +205,6 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
                     @Override
                     public void onError(@NonNull CameraDevice camera, int error) {
                         Log.d(TAG, "onError: " + error);
-
                     }
                 }, null);
             }
@@ -200,26 +212,27 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        Log.d(TAG, "onSurfaceTextureSizeChanged: ");
 
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.d(TAG, "surfaceChanged: ");
-
-    }
-
-    @Override
-    public void surfaceRedrawNeeded(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceRedrawNeeded: ");
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceDestroyed: ");
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        Log.d(TAG, "onSurfaceTextureDestroyed: ");
         if (reader != null) reader.close();
         if (session != null) session.close();
         if (camera != null) camera.close();
+
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -254,7 +267,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         isPreview = true;
         try {
             reqBuilder.removeTarget(reader.getSurface());
-            reqBuilder.addTarget(binding.svCameraPreview.getHolder().getSurface());
+            reqBuilder.addTarget(surface);
             session.setRepeatingRequest(
                 reqBuilder.build(),
                 new CameraCaptureSession.CaptureCallback() {
@@ -278,7 +291,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         isPreview = false;
         try {
             session.stopRepeating();
-            reqBuilder.removeTarget(binding.svCameraPreview.getHolder().getSurface());
+            reqBuilder.removeTarget(surface);
             reqBuilder.addTarget(reader.getSurface());
             session.capture(reqBuilder.build(), new CameraCaptureSession.CaptureCallback() {
                 @Override
@@ -316,6 +329,7 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
 
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(bytes);
+            fos.flush();
             fos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -342,4 +356,5 @@ public class Camera2Activity extends AppCompatActivity implements SurfaceHolder.
         }
 
     }
+
 }
