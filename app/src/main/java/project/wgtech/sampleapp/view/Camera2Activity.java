@@ -2,6 +2,7 @@ package project.wgtech.sampleapp.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,9 +21,11 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -39,8 +42,8 @@ import androidx.databinding.DataBindingUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -53,7 +56,6 @@ import project.wgtech.sampleapp.tools.Constants;
 import project.wgtech.sampleapp.tools.ImageSenderInterface;
 import project.wgtech.sampleapp.tools.PermissionsActivity;
 import project.wgtech.sampleapp.tools.RetrofitBuilder;
-import project.wgtech.sampleapp.tools.UriFilePathConverter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -263,7 +265,11 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
                 Log.d(TAG, "onImageAvailable: 저장 준비 " + baos.toByteArray().length + " bytes.");
+
+                // 저장
                 save(baos.toByteArray(), img.getTimestamp());
+
+                // 업로드
                 upload(img.getTimestamp());
 
                 bitmap.recycle();
@@ -326,7 +332,6 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
     private void save(byte[] bytes, long timestamp) {
         File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
                 + "/WGSampleApp/");
-        File file = new File(dir.getAbsolutePath() + "/" + timestamp + ".jpg");
 
         try {
             if (!dir.exists()) {
@@ -334,15 +339,21 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 Log.d(TAG, "save: Directory created");
             }
 
-            if (!file.exists()) {
-                file.createNewFile();
-                Log.d(TAG, "save: File created");
-            }
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DATE_TAKEN, timestamp);
+            values.put(MediaStore.Images.Media.TITLE, timestamp);
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, timestamp +".jpg");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(MediaStore.Images.Media.SIZE, bytes.length);
+            values.put("_data", dir.getAbsolutePath() + "/" + timestamp + ".jpg");
 
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bytes);
-            fos.flush();
-            fos.close();
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+            OutputStream os = getContentResolver().openOutputStream(uri);
+            os.write(bytes);
+            os.flush();
+            os.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

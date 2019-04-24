@@ -37,16 +37,12 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/DetailStyle"></activity>
-
         <activity android:name=".view.Camera2Activity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".view.GalleryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
-
         <activity
             android:name=".tools.PermissionsActivity"
             android:configChanges="orientation"
