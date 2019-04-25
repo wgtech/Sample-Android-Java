@@ -5,9 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -28,6 +30,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
+import android.util.SparseArray;
+import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -81,6 +85,17 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
 
     private boolean isPreview;
 
+    // Orientation
+    private static final SparseArray ORIENTATIONS = new SparseArray(4);
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 0);
+        ORIENTATIONS.append(Surface.ROTATION_90, 270);
+        ORIENTATIONS.append(Surface.ROTATION_180, 180);
+        ORIENTATIONS.append(Surface.ROTATION_270, 90);
+    }
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,8 +127,12 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera2);
         binding.setActivity(this);
         binding.tevCameraPreview.setSurfaceTextureListener(this);
-    }
 
+        // Camera Rotation
+        binding.tevCameraPreview.setRotation(
+                Float.parseFloat(ORIENTATIONS.get(getWindowManager().getDefaultDisplay().getRotation())+"")
+        );
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -142,8 +161,6 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
 
     ////////////////////////////////////////////////////////////////////////
 
-
-
     @SuppressLint("MissingPermission")
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
@@ -155,6 +172,7 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
             for (String camId: manager.getCameraIdList()) {
                 cc = manager.getCameraCharacteristics(camId);
                 StreamConfigurationMap map = cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
                 Size size = map.getOutputSizes(SurfaceTexture.class)[0];
                 Log.d(TAG, "onSurfaceTextureAvailable: " + size.getWidth() + ", " + size.getHeight());
 
@@ -172,7 +190,6 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 surfaces.add(reader.getSurface());
                 surfaces.add(surface);
 
-
                 manager.openCamera(camId, new CameraDevice.StateCallback() {
                     @Override
                     public void onOpened(@NonNull CameraDevice c) {
@@ -182,6 +199,9 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                         try {
                             reqBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
                             reqBuilder.addTarget(surface);
+                            reqBuilder.set(CaptureRequest.JPEG_ORIENTATION,
+                                    getJpegOrientation(cc, getWindowManager().getDefaultDisplay().getRotation())
+                            );
                             reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
                             camera.createCaptureSession(
@@ -224,6 +244,24 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    private int getJpegOrientation(CameraCharacteristics cc, int deviceOrientation) {
+        if (deviceOrientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+            return 0;
+        }
+
+        int sensorOrientation = cc.get(CameraCharacteristics.SENSOR_ORIENTATION);
+
+        deviceOrientation = (deviceOrientation + 45) / 45 * 90;
+
+        boolean facingFront = cc.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
+        if (facingFront) {
+            deviceOrientation *= -1;
+        }
+
+        int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360;
+        return jpegOrientation;
     }
 
     @Override
@@ -270,7 +308,7 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 save(baos.toByteArray(), img.getTimestamp());
 
                 // 업로드
-                upload(img.getTimestamp());
+                //upload(img.getTimestamp());
 
                 bitmap.recycle();
             }
