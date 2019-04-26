@@ -2,6 +2,7 @@ package project.wgtech.sampleapp.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -31,6 +34,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.TextureView;
@@ -89,10 +93,10 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
     private static final SparseArray ORIENTATIONS = new SparseArray(4);
 
     static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 0);
-        ORIENTATIONS.append(Surface.ROTATION_90, 270);
-        ORIENTATIONS.append(Surface.ROTATION_180, 180);
-        ORIENTATIONS.append(Surface.ROTATION_270, 90);
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
 
@@ -121,6 +125,8 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
 
     private void initActivity() {
         Log.d(TAG, "initActivity: ");
+        manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -129,9 +135,36 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         binding.tevCameraPreview.setSurfaceTextureListener(this);
 
         // Camera Rotation
-        binding.tevCameraPreview.setRotation(
-                Float.parseFloat(ORIENTATIONS.get(getWindowManager().getDefaultDisplay().getRotation())+"")
-        );
+        //binding.tevCameraPreview.setTransform(getCameraMatrix());
+    }
+
+    private void configureTransform(int viewWidth, int viewHeight) {
+
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+        Matrix matrix = new Matrix();
+        RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
+        RectF bufferRect = new RectF(0, 0, binding.tevCameraPreview.getHeight(), binding.tevCameraPreview.getWidth());
+
+        float centerX = viewRect.centerX();
+        float centerY = viewRect.centerY();
+
+        if (rotation == Surface.ROTATION_90
+                || rotation == Surface.ROTATION_270) {
+            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
+            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
+
+            float scale = Math.max(
+                (float) viewHeight / binding.tevCameraPreview.getHeight(),   /* mPreviewSize.getHeight() */
+                (float) viewWidth / binding.tevCameraPreview.getWidth()    /* mPreviewSize.getWidth() */
+            );
+
+            matrix.postScale(scale, scale, centerX, centerY);
+            matrix.postRotate(90 * (rotation - 2), centerX, centerY);
+        } else if (rotation == Surface.ROTATION_180) {
+            matrix.postRotate(180, centerX, centerY);
+        }
+        binding.tevCameraPreview.setTransform(matrix);
     }
 
     @Override
@@ -166,7 +199,7 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
         Log.d(TAG, "onSurfaceTextureAvailable: ");
 
-        manager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
+        Point p = new Point();
 
         try {
             for (String camId: manager.getCameraIdList()) {
@@ -176,14 +209,15 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 Size size = map.getOutputSizes(SurfaceTexture.class)[0];
                 Log.d(TAG, "onSurfaceTextureAvailable: " + size.getWidth() + ", " + size.getHeight());
 
+                //configureTransform(size.getWidth(), size.getHeight());
+                configureTransform(binding.tevCameraPreview.getWidth(), binding.tevCameraPreview.getHeight());
+
                 // ImageReader 생성
-                //reader = ImageReader.newInstance(size.getWidth(), size.getHeight(), ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
-                reader = ImageReader.newInstance(1280, 720, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
+                reader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1); // maxImages =1 : ImageReader.acquireNextImage() 사용 권장
                 reader.setOnImageAvailableListener(this, null);
 
                 // surfaces 구현
-                //surfaceTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
-                surfaceTexture.setDefaultBufferSize(1280, 720);
+                surfaceTexture.setDefaultBufferSize(1440, 1080);
                 surface = new Surface(surfaceTexture);
 
                 surfaces = new ArrayList<>();
@@ -202,7 +236,7 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                             reqBuilder.set(CaptureRequest.JPEG_ORIENTATION,
                                     getJpegOrientation(cc, getWindowManager().getDefaultDisplay().getRotation())
                             );
-                            reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                            reqBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_AF_MODE_AUTO);
 
                             camera.createCaptureSession(
                                     surfaces,
@@ -246,28 +280,30 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         }
     }
 
-    private int getJpegOrientation(CameraCharacteristics cc, int deviceOrientation) {
-        if (deviceOrientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
-            return 0;
-        }
+    private int getJpegOrientation(CameraCharacteristics c, int deviceOrientation) {
+        if (deviceOrientation == android.view.OrientationEventListener.ORIENTATION_UNKNOWN) return 0;
+        int sensorOrientation = c.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
-        int sensorOrientation = cc.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        // Round device orientation to a multiple of 90
+        //deviceOrientation = (deviceOrientation + 45) / 90 * 90;
+        deviceOrientation = (int) ORIENTATIONS.get(deviceOrientation);
 
-        deviceOrientation = (deviceOrientation + 45) / 45 * 90;
+        // Reverse device orientation for front-facing cameras
+        boolean facingFront = c.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
+        if (facingFront) deviceOrientation = -deviceOrientation;
 
-        boolean facingFront = cc.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
-        if (facingFront) {
-            deviceOrientation *= -1;
-        }
+        // Calculate desired JPEG orientation relative to camera orientation to make
+        // the image upright relative to the device orientation
 
         int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360;
+
         return jpegOrientation;
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
         Log.d(TAG, "onSurfaceTextureSizeChanged: ");
-
+        //configureTransform(binding.tevCameraPreview.getWidth(), binding.tevCameraPreview.getHeight());
     }
 
     @Override
@@ -305,10 +341,10 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
                 Log.d(TAG, "onImageAvailable: 저장 준비 " + baos.toByteArray().length + " bytes.");
 
                 // 저장
-                save(baos.toByteArray(), img.getTimestamp());
+                save(baos.toByteArray(), System.currentTimeMillis());
 
                 // 업로드
-                //upload(img.getTimestamp());
+                upload(System.currentTimeMillis());
 
                 bitmap.recycle();
             }
@@ -399,8 +435,8 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         }
     }
 
-    private void upload(long timestamp) {
 
+    private void upload(long timestamp) {
         Retrofit imgSender = new RetrofitBuilder().build(getString(R.string.server_ipv4));
         ImageSenderInterface service = imgSender.create(ImageSenderInterface.class);
 
