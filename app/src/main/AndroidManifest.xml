@@ -21,11 +21,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/SplashStyle">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".view.MainActivity"
@@ -38,7 +34,13 @@
             android:theme="@style/DetailStyle"></activity>
         <activity android:name=".view.Camera2Activity"
             android:configChanges="orientation"
-            android:screenOrientation="fullSensor"></activity>
+            android:screenOrientation="fullSensor">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".view.GalleryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
