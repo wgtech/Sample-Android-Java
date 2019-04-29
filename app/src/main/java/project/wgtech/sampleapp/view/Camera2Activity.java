@@ -298,9 +298,8 @@ public class Camera2Activity extends AppCompatActivity implements TextureView.Su
         Log.d(TAG, "getJpegOrientation: deviceOrientation (2) " + deviceOrientation);
         Log.d(TAG, "getJpegOrientation: sensorOrientation (2) " + sensorOrientation);
 
-        //int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360; // 우 버튼
+        int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360; // 우 버튼
         //int jpegOrientation = (sensorOrientation + deviceOrientation + 180) % 360; // 좌 버튼
-        int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360;
 
         Log.d(TAG, "getJpegOrientation: jpegOrientation " + jpegOrientation);
         Log.d(TAG, "getJpegOrientation: ==================");

@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import project.wgtech.sampleapp.R;
 import project.wgtech.sampleapp.databinding.ActivityMainBinding;
 import project.wgtech.sampleapp.model.UserInfo;
