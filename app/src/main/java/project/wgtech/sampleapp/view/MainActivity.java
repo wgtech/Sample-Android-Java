@@ -33,7 +33,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private final static String TAG = MainActivity.class.getSimpleName();
@@ -142,18 +145,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .serviceTypeIcon(i.getStringExtra("serviceTypeIconPath"))
                 .build();
 
-        // 추가
+        // dates add
+        dates = setDates(10); // param = dates size
+    }
+
+    private ArrayList<String> setDates(int size) {
         dates = new ArrayList<>(1);
-//        dates.add("2019-04-01");
-//        dates.add("2019-04-02");
-//        dates.add("2019-04-03");
-//        dates.add("2019-04-04");
-//        dates.add("2019-04-05");
-//        dates.add("2019-04-06");
-//        dates.add("2019-04-07");
-//        dates.add("2019-04-08");
-//        dates.add("2019-04-09");
-//        dates.add("2019-04-10");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar today = Calendar.getInstance();
+
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                Date date = new Date(today.getTimeInMillis() - (86400000 * i));
+                dates.add(sdf.format(date));
+            }
+        }
+
+        return dates;
     }
 
     private void setDatasIntoRecyclerView() {
@@ -257,11 +266,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (resultCode == Constants.CAMERA_PIC_OK) {
             // 데이터 새로고침
             Log.d(TAG, "onActivityResult: 카메라 저장 성공");
+            setDatasIntoRecyclerView();
         }
 
         if (resultCode == Constants.GALLERY_RESPONSE_OK) {
             // 호출
             Log.d(TAG, "onActivityResult: 사진 불러오기 성공 " + data.getData().getPath());
+            setDatasIntoRecyclerView();
         }
 
         if (resultCode == Constants.GALLERY_RESPONSE_FAIL) {
